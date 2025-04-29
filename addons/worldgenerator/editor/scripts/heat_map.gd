@@ -9,7 +9,7 @@ const YELLOW: Color = Color(0.8, 0.8, 0.0)
 const RED: Color = Color(1.0, 0.0, 0.0)
 
 signal request_view
-signal gradient_changed
+signal value_changed
 
 # Scene Nodes
 var label: Label
@@ -26,7 +26,6 @@ var members_created: bool = false
 func _init():
 	self._create_members()
 	self._add_child_nodes()
-	self._make_gradient()
 	self._connect_internal_signals()
 	print(&"HeatMap Initialized")
 
@@ -42,7 +41,7 @@ func get_gradient() -> Gradient:
 	return self.gradient
 
 ## Make gradient for heat map preview
-func _make_gradient():
+func _make_gradient(_ignored: float = 0.0):
 	var colors: PackedColorArray = [
 		PURPLE,
 		BLUE,
@@ -61,7 +60,7 @@ func _make_gradient():
 	grad.colors = colors
 	grad.offsets = cutoffs
 	self.gradient = grad
-	self.gradient_changed.emit()
+	self.value_changed.emit()
 
 
 ## Creates the internal nodes and member instances for this node
@@ -83,6 +82,7 @@ func _create_members():
 	self.view_button = Button.new()
 	self.view_button.text = &"Show View"
 	self.view_button.name = &"ViewButton"
+	self._make_gradient()
 	self.members_created = true
 	# print(&"Members Created")
 

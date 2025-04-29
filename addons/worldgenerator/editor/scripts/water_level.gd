@@ -7,6 +7,8 @@ const GREEN := Color(0.0, 1.0, 0.0)
 const INITIAL_WATER_LEVEL: float = 0.5
 
 signal request_view
+signal gradient_changed
+signal label_changed
 
 # Scene Nodes
 var label: Label
@@ -41,23 +43,28 @@ func get_gradient() -> Gradient:
 
 ## Update gradient and label text
 func _on_slider_value_changed(value: float):
-	self.gradient = _make_gradient(value / 10.0)
+	self._make_gradient(value / 10.0)
 	self._update_label_text(value)
 
 
 ## Create the gradient for the water level
-func _make_gradient(land_start: float) -> Gradient:
+func _make_gradient(land_start: float):
 	var colors: PackedColorArray = [ BLUE, BLUE, GREEN, GREEN ]
 	var cutoffs: PackedFloat32Array = [0.0, land_start, land_start, 1.0]
 	var grad = Gradient.new()
 	grad.colors = colors
 	grad.offsets = cutoffs
-	return grad
+	self.gradient = grad
+	# print("water_level: emit gradient changed")
+	self.gradient_changed.emit()
 
 
 ## Update the water level label with a new value
 func _update_label_text(val: float):
-	self.label.text = "Water Lavel: {val}".format(["val", val])
+	self.label.text = "Water Lavel: {val}".format({"val": val})
+	# print("water_level: emit label changed")
+	self.label_changed.emit()
+	self.queue_redraw()
 
 
 ## Creates the internal nodes and member instances for this node
@@ -67,9 +74,13 @@ func _create_members():
 	self.label = Label.new()
 	self.label.name = &"Label"
 	self._update_label_text(INITIAL_WATER_LEVEL)
+	self._make_gradient(INITIAL_WATER_LEVEL)
 	self.slider = HSlider.new()
 	self.slider.name = &"Slider"
 	self.slider.value = INITIAL_WATER_LEVEL
+	self.slider.max_value = 10.0
+	self.slider.min_value = 0.0
+	self.slider.step = 0.01
 	self.view_button = Button.new()
 	self.view_button.text = &"Show View"
 	self.members_created = true

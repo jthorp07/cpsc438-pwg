@@ -1,0 +1,11 @@
+[gd_resource type="TileSet" load_steps=3 format=3 uid="uid://cc87gh2ojfli"]
+
+[ext_resource type="Texture2D" uid="uid://ci0jml6nw87fk" path="res://addons/worldgenerator/assets/HexTest.png" id="1_hprc6"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_1l65d"]
+resource_name = "HexTiles"
+texture = ExtResource("1_hprc6")
+
+[resource]
+tile_shape = 3
+sources/0 = SubResource("TileSetAtlasSource_1l65d")
