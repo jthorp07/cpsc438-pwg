@@ -1,15 +1,27 @@
 @tool
 extends EditorPlugin
 
-# Editor node constants
-const NODE_NAME = "WorldGenerator"
-const INHERITANCE = "Node2D"
-const NODE_SCRIPT = preload("editor/worldgenerator.gd")
-const NODE_ICON = preload("assets/WorldGeneratorIcon.png")
+# Plugin paths
+const PLUGIN = "worldgenerator"
+const PLUGIN_EDITOR = "editor"
+const PLUGIN_CORE = "core"
+
 
 func _enter_tree():
-	add_custom_type(NODE_NAME, INHERITANCE, NODE_SCRIPT, NODE_ICON)
+	print("Enable")
+	if not EditorInterface.is_plugin_enabled(PLUGIN + "/" + PLUGIN_EDITOR):
+		print("Enabling editor")
+		EditorInterface.set_plugin_enabled(PLUGIN + "/" + PLUGIN_EDITOR, true)
+	if not EditorInterface.is_plugin_enabled(PLUGIN + "/" + PLUGIN_CORE):
+		print("Enabling core")
+		EditorInterface.set_plugin_enabled(PLUGIN + "/" + PLUGIN_CORE, true)
 
 
 func _exit_tree():
-	remove_custom_type(NODE_NAME)
+	print("Disable")
+	if EditorInterface.is_plugin_enabled(PLUGIN + "/" + PLUGIN_EDITOR):
+		print("Disabling editor")
+		EditorInterface.set_plugin_enabled(PLUGIN + "/" + PLUGIN_EDITOR, false)
+	if EditorInterface.is_plugin_enabled(PLUGIN + "/" + PLUGIN_CORE):
+		print("Disabling core")
+		EditorInterface.set_plugin_enabled(PLUGIN + "/" + PLUGIN_CORE, false)
