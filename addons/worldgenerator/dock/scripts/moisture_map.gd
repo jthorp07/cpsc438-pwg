@@ -1,22 +1,20 @@
 @tool
-class_name HeatMap
+class_name MoistureMap
 extends VBoxContainer
 
-const BLUE: Color = Color(0.0, 0.0, 1.0)
+const BROWN: Color = Color(0.2, 0.1, 0.0)
+const YELLOW: Color = Color(1.0, 1.0, 0.0)
 const GREEN: Color = Color(0.0, 1.0, 0.0)
-const PURPLE: Color = Color(0.25, 0.0, 0.75)
-const YELLOW: Color = Color(0.8, 0.8, 0.0)
-const RED: Color = Color(1.0, 0.0, 0.0)
 
 signal request_view
-signal value_changed
+signal gradient_changed
 
 # Scene Nodes
 var label: Label
 var inputs_row: HBoxContainer
-var blue_in: SliderOption
-var green_in: SliderOption
-var yellow_in: SliderOption
+var arid_in: SliderOption
+var temperate_in: SliderOption
+var humid_in: SliderOption
 var view_button: Button
 # Internal
 var gradient: Gradient
@@ -27,14 +25,14 @@ func _init():
 	self._create_members()
 	self._add_child_nodes()
 	self._connect_internal_signals()
-	print(&"HeatMap Initialized")
+	print(&"MoistureMap Initialized")
 
 
 func clean_up():
 	self._disconnect_internal_signals()
 	self._remove_child_nodes()
 	self._free_members()
-	print(&"HeatMap Cleaned Up")
+	print(&"MoistureMap Cleaned Up")
 
 
 func get_gradient() -> Gradient:
@@ -43,24 +41,31 @@ func get_gradient() -> Gradient:
 ## Make gradient for heat map preview
 func _make_gradient(_ignored: float = 0.0):
 	var colors: PackedColorArray = [
-		PURPLE,
-		BLUE,
-		GREEN,
+		BROWN,
+		BROWN,
 		YELLOW,
-		RED
+		YELLOW,
+		GREEN,
+		GREEN
 	]
+	var percentiles := WorldGeneratorUtils.percentiles_from_weights([
+		self.arid_in.get_value(),
+		self.temperate_in.get_value(),
+		self.humid_in.get_value()
+	])
 	var cutoffs: PackedFloat32Array = [
 		0.0,
-		self.blue_in.get_value(),
-		self.green_in.get_value(),
-		self.yellow_in.get_value(),
+		percentiles[0],
+		percentiles[0],
+		percentiles[1],
+		percentiles[1],
 		1.0
 	]
 	var grad = Gradient.new()
 	grad.colors = colors
 	grad.offsets = cutoffs
 	self.gradient = grad
-	self.value_changed.emit()
+	self.gradient_changed.emit()
 
 
 ## Creates the internal nodes and member instances for this node
@@ -69,16 +74,16 @@ func _create_members():
 	if self.members_created:
 		return
 	self.label = Label.new()
-	self.label.text = &"Heat Map"
+	self.label.text = &"Moisture Map"
 	self.label.name = &"Label"
 	self.inputs_row = HBoxContainer.new()
 	self.inputs_row.name = &"Inputs"
-	self.blue_in = SliderOption.new(&"Blue", 0.2)
-	self.blue_in.name = &"Blue"
-	self.green_in = SliderOption.new(&"Green", 0.4)
-	self.green_in.name = &"Green"
-	self.yellow_in = SliderOption.new(&"Yellow", 0.6)
-	self.yellow_in.name = &"Yellow"
+	self.arid_in = SliderOption.new(&"Arid", 0.2)
+	self.arid_in.name = &"Arid"
+	self.temperate_in = SliderOption.new(&"Temperate", 0.4)
+	self.temperate_in.name = &"Temperate"
+	self.humid_in = SliderOption.new(&"Humid", 0.6)
+	self.humid_in.name = &"Humid"
 	self.view_button = Button.new()
 	self.view_button.text = &"Show View"
 	self.view_button.name = &"ViewButton"
@@ -96,9 +101,9 @@ func _add_child_nodes():
 	if not self.members_created:
 		return
 	add_child(self.label)
-	self.inputs_row.add_child(self.blue_in)
-	self.inputs_row.add_child(self.green_in)
-	self.inputs_row.add_child(self.yellow_in)
+	self.inputs_row.add_child(self.arid_in)
+	self.inputs_row.add_child(self.temperate_in)
+	self.inputs_row.add_child(self.humid_in)
 	add_child(self.inputs_row)
 	add_child(self.view_button)
 	self.children_added = true
@@ -114,12 +119,12 @@ func _remove_child_nodes():
 	if not self.members_created:
 		return
 	self.remove_child.call_deferred(self.label)
-	self.blue_in.clean_up()
-	self.inputs_row.remove_child.call_deferred(self.blue_in)
-	self.green_in.clean_up()
-	self.inputs_row.remove_child.call_deferred(self.green_in)
-	self.yellow_in.clean_up()
-	self.inputs_row.remove_child.call_deferred(self.yellow_in)
+	self.arid_in.clean_up()
+	self.inputs_row.remove_child.call_deferred(self.arid_in)
+	self.temperate_in.clean_up()
+	self.inputs_row.remove_child.call_deferred(self.temperate_in)
+	self.humid_in.clean_up()
+	self.inputs_row.remove_child.call_deferred(self.humid_in)
 	self.remove_child.call_deferred(self.inputs_row)
 	self.remove_child.call_deferred(self.view_button)
 	self.children_added = false
@@ -136,9 +141,9 @@ func _free_members():
 		return
 	self.label.queue_free()
 	self.inputs_row.queue_free()
-	self.blue_in.queue_free()
-	self.green_in.queue_free()
-	self.yellow_in.queue_free()
+	self.arid_in.queue_free()
+	self.temperate_in.queue_free()
+	self.humid_in.queue_free()
 	self.view_button.queue_free()
 	self.members_created = false
 	# print(&"Members Freed")
@@ -148,21 +153,21 @@ func _free_members():
 func _connect_internal_signals():
 	if not self.view_button.pressed.is_connected(self.request_view.emit):
 		self.view_button.pressed.connect(self.request_view.emit)
-	if not self.blue_in.value_updated.is_connected(self._make_gradient):
-		self.blue_in.value_updated.connect(self._make_gradient)
-	if not self.green_in.value_updated.is_connected(self._make_gradient):
-		self.green_in.value_updated.connect(self._make_gradient)
-	if not self.yellow_in.value_updated.is_connected(self._make_gradient):
-		self.yellow_in.value_updated.connect(self._make_gradient)
+	if not self.arid_in.value_updated.is_connected(self._make_gradient):
+		self.arid_in.value_updated.connect(self._make_gradient)
+	if not self.temperate_in.value_updated.is_connected(self._make_gradient):
+		self.temperate_in.value_updated.connect(self._make_gradient)
+	if not self.humid_in.value_updated.is_connected(self._make_gradient):
+		self.humid_in.value_updated.connect(self._make_gradient)
 
 
 ## Disconnects the internal signals for this node
 func _disconnect_internal_signals():
 	if self.view_button.pressed.is_connected(self.request_view.emit):
 		self.view_button.pressed.connect(self.request_view.emit)
-	if self.blue_in.value_updated.is_connected(self._make_gradient):
-		self.blue_in.value_updated.disconnect(self._make_gradient)
-	if self.green_in.value_updated.is_connected(self._make_gradient):
-		self.green_in.value_updated.disconnect(self._make_gradient)
-	if self.yellow_in.value_updated.is_connected(self._make_gradient):
-		self.yellow_in.value_updated.disconnect(self._make_gradient)
+	if self.arid_in.value_updated.is_connected(self._make_gradient):
+		self.arid_in.value_updated.disconnect(self._make_gradient)
+	if self.temperate_in.value_updated.is_connected(self._make_gradient):
+		self.temperate_in.value_updated.disconnect(self._make_gradient)
+	if self.humid_in.value_updated.is_connected(self._make_gradient):
+		self.humid_in.value_updated.disconnect(self._make_gradient)

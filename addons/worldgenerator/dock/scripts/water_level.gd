@@ -8,7 +8,6 @@ const INITIAL_WATER_LEVEL: float = 0.5
 
 signal request_view
 signal gradient_changed
-signal label_changed
 
 # Scene Nodes
 var label: Label
@@ -20,6 +19,7 @@ var members_created: bool = false
 var children_added: bool = false
 
 func _init():
+	self.alignment = BoxContainer.ALIGNMENT_CENTER
 	self._create_members()
 	self._add_child_nodes()
 	self._connect_internal_signals()
@@ -55,15 +55,12 @@ func _make_gradient(land_start: float):
 	grad.colors = colors
 	grad.offsets = cutoffs
 	self.gradient = grad
-	# print("water_level: emit gradient changed")
 	self.gradient_changed.emit()
 
 
 ## Update the water level label with a new value
 func _update_label_text(val: float):
-	self.label.text = "Water Lavel: {val}".format({"val": val})
-	# print("water_level: emit label changed")
-	self.label_changed.emit()
+	self.label.text = "Water Level: %.2f" % val
 	self.queue_redraw()
 
 
@@ -81,6 +78,7 @@ func _create_members():
 	self.slider.max_value = 10.0
 	self.slider.min_value = 0.0
 	self.slider.step = 0.01
+	self.slider.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	self.view_button = Button.new()
 	self.view_button.text = &"Show View"
 	self.members_created = true

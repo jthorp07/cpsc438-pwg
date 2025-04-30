@@ -33,9 +33,9 @@ const HEX_TEST_TILESET := preload("res://addons/worldgenerator/assets/tilesets/h
 @export_range(0, 10) var humid: int = 1
 
 @export_group("Noise Configuration")
-@export var height_noise: FastNoiseLite
-@export var moisture_noise: FastNoiseLite
-@export var heat_noise: FastNoiseLite
+@export var height_noise: FastNoiseLite = FastNoiseLite.new()
+@export var moisture_noise: FastNoiseLite = FastNoiseLite.new()
+@export var heat_noise: FastNoiseLite = FastNoiseLite.new()
 
 ## Temporary variable to store the world during generation
 var world: TileMapLayer = null
@@ -49,51 +49,29 @@ func get_dimensions() -> Vector2i:
 func generate_world():
 	# TODO: Template algorithm:
 	# 1. Sample Noise
+	self.world = TileMapLayer.new()
+	var dims := self.get_dimensions()
+	var height_map := NoiseSample.new(dims.x, dims.y)
+	var heat_map := NoiseSample.new(dims.x, dims.y)
+	var moisture_map := NoiseSample.new(dims.x, dims.y)
+	if self.world_wrap:
+		height_map.sample_with_wrap(self.height_noise)
+		heat_map.sample_with_wrap(self.heat_noise)
+		moisture_map.sample_with_wrap(self.moisture_noise)
+	else:
+		height_map.sample(self.height_noise)
+		heat_map.sample(self.heat_noise)
+		moisture_map.sample(self.moisture_noise)
 	# 2. Calculate Percentiles/Cutoffs
+	var percentages: PackedFloat32Array = [float(self.water_percentage) / 100.0]
+	var water_cutoff: float = height_map.get_percentiles(percentages)[0]
+	percentages = []
 	# 3. Perform Augments
 	# 4. Recalculate Cutoffs
 	# 5. Insert Tiles
-	self.world = TileMapLayer.new()
-	if world_wrap:
-		var height_map := sample_each_coord_with_wrap(height_noise)
-		var moisture_map := sample_each_coord_with_wrap(moisture_noise)
-		var heat_map := sample_each_coord_with_wrap(heat_noise)
-	else:
-		var height_map := sample_each_coord(height_noise)
-		var moisture_map := sample_each_coord(moisture_noise)
-		var heatmap := sample_each_coord(heat_noise)
 
 
-## Returns a 2D array of floating point values resulting from cylindrically
-## sampling noise values
-func sample_each_coord_with_wrap(noise: FastNoiseLite) -> Array[Array]:
-	var results = Array()
-	var delta_rotation_x: float = TAU / float(width)
-	var delta_rotation_y: float = TAU / float(height)
-	var fwidth: float = float(width)
-	var fheight: float = float(height)
-	for x in range(2 ** width):
-		for y in range(2 ** height):
-			# Sinusoidal functions with period=width and amplitude=width/2
-			# Makes the looper still move 1 on each axis for each sample value & wrap on one axis
-			var nx = fwidth / 2.0 * cos((TAU * float(x)) / fwidth)
-			var ny = fwidth / 2.0 * sin((TAU * float(y)) / fwidth)
-			var nz = y
-			results[x].append(noise.get_noise_3d(nx, ny, nz))
-	return results
-
-
-## Returns a 2D array of floating point values resulting from sampling noise
-## values
-func sample_each_coord(noise: FastNoiseLite) -> Array[Array]:
-	var results := Array()
-	for x in range(width):
-		for y in range(height):
-			results[x].append(noise.get_noise_2d(x, y))
-	return results
-
-
-func place_tile(height_map: Array[Array], heat_map: Array[Array], moisture_map: Array[Array], coords: Vector2i):
+func place_tile(height_map: NoiseSample, heat_map: NoiseSample, moisture_map: NoiseSample, coords: Vector2i):
 	# TODO: Set atlas coords appropriately
 	
 	var atlas_coords = Vector2i(1, 0)
@@ -104,3 +82,9 @@ func place_tile(height_map: Array[Array], heat_map: Array[Array], moisture_map: 
 func _create_temp_world():
 	self.world = TileMapLayer.new()
 	self.world.tile_set = HEX_TEST_TILESET
+
+
+func _percentiles_from_weights(weights: PackedInt32Array) -> PackedFloat32Array:
+	var res: PackedFloat32Array = []
+	
+	return res

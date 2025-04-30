@@ -26,7 +26,7 @@ func clean_up():
 
 
 ## Retrieve the value from this option's slider
-func get_value() -> float:
+func get_value() -> int:
 	return self.spinbox.value
 
 
@@ -42,9 +42,9 @@ func _create_members(label_text: String, default_value: float):
 	self.spinbox = SpinBox.new()
 	self.spinbox.set_value_no_signal(default_value)
 	self.spinbox.update_on_text_changed = true
-	self.spinbox.step = 0.05
-	self.spinbox.max_value = 1.0
-	self.spinbox.min_value = 0.0
+	self.spinbox.step = 1
+	self.spinbox.max_value = 10
+	self.spinbox.min_value = 0
 	# Finish
 	self.members_created = true
 	self.spinbox.name = &"SpinBox"
