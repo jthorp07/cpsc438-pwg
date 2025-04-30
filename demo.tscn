@@ -4,8 +4,8 @@
 [ext_resource type="Script" uid="uid://dt5pa1cihw1xx" path="res://addons/worldgenerator/core/scripts/world_generator.gd" id="2_m0rpm"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_c6xj6"]
-frequency = 0.0013
-fractal_type = 3
+frequency = 0.0121
+fractal_octaves = 3
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_6bw2v"]
 
@@ -21,9 +21,9 @@ script = ExtResource("2_m0rpm")
 height = 8
 width = 9
 world_wrap = true
-water_percentage = 76
+water_percentage = 29
 cold = 3
-mild = 3
+mild = 2
 hot = 2
 height_noise = SubResource("FastNoiseLite_c6xj6")
 moisture_noise = SubResource("FastNoiseLite_6bw2v")
