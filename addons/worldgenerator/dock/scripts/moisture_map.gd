@@ -25,14 +25,17 @@ func _init():
 	self._create_members()
 	self._add_child_nodes()
 	self._connect_internal_signals()
-	print(&"MoistureMap Initialized")
 
 
 func clean_up():
 	self._disconnect_internal_signals()
 	self._remove_child_nodes()
 	self._free_members()
-	print(&"MoistureMap Cleaned Up")
+
+
+func get_weights() -> Vector3i:
+	var weights := Vector3i(self.arid_in.get_value(), self.temperate_in.get_value(), self.humid_in.get_value())
+	return weights
 
 
 func get_gradient() -> Gradient:
@@ -107,7 +110,6 @@ func _add_child_nodes():
 	add_child(self.inputs_row)
 	add_child(self.view_button)
 	self.children_added = true
-	# print(&"Children Added")
 
 
 ## Remove appropriate child nodes from this node
@@ -128,7 +130,6 @@ func _remove_child_nodes():
 	self.remove_child.call_deferred(self.inputs_row)
 	self.remove_child.call_deferred(self.view_button)
 	self.children_added = false
-	# print(&"Children Removed")
 
 
 ## Frees the members of this node
@@ -146,7 +147,6 @@ func _free_members():
 	self.humid_in.queue_free()
 	self.view_button.queue_free()
 	self.members_created = false
-	# print(&"Members Freed")
 
 
 ## Connects the internal signals for this node

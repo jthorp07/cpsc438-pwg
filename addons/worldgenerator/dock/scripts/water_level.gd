@@ -4,7 +4,7 @@ extends VBoxContainer
 
 const BLUE := Color(0.0, 0.0, 1.0)
 const GREEN := Color(0.0, 1.0, 0.0)
-const INITIAL_WATER_LEVEL: float = 0.5
+const INITIAL_WATER_LEVEL: int = 60
 
 signal request_view
 signal gradient_changed
@@ -23,17 +23,15 @@ func _init():
 	self._create_members()
 	self._add_child_nodes()
 	self._connect_internal_signals()
-	print(&"WaterLevel Initialized")
 
 
 func clean_up():
 	self._disconnect_internal_signals()
 	self._remove_child_nodes()
 	self._free_members()
-	print(&"WaterLevel Cleaned Up")
 
 
-func get_water_level() -> float:
+func get_water_level() -> int:
 	return self.slider.value
 
 
@@ -42,8 +40,8 @@ func get_gradient() -> Gradient:
 
 
 ## Update gradient and label text
-func _on_slider_value_changed(value: float):
-	self._make_gradient(value / 10.0)
+func _on_slider_value_changed(value: int):
+	self._make_gradient(float(value) * 0.01)
 	self._update_label_text(value)
 
 
@@ -59,8 +57,8 @@ func _make_gradient(land_start: float):
 
 
 ## Update the water level label with a new value
-func _update_label_text(val: float):
-	self.label.text = "Water Level: %.2f" % val
+func _update_label_text(val: int):
+	self.label.text = "Water Percentage: %3d%%" % val
 	self.queue_redraw()
 
 
@@ -75,9 +73,9 @@ func _create_members():
 	self.slider = HSlider.new()
 	self.slider.name = &"Slider"
 	self.slider.value = INITIAL_WATER_LEVEL
-	self.slider.max_value = 10.0
-	self.slider.min_value = 0.0
-	self.slider.step = 0.01
+	self.slider.max_value = 100
+	self.slider.min_value = 0
+	self.slider.step = 1
 	self.slider.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	self.view_button = Button.new()
 	self.view_button.text = &"Show View"
@@ -93,7 +91,6 @@ func _add_child_nodes():
 	self.add_child(self.slider)
 	self.add_child(self.view_button)
 	self.children_added = true
-	# print(&"Children Added")
 
 
 ## Remove appropriate child nodes from this node
@@ -104,7 +101,6 @@ func _remove_child_nodes():
 	self.remove_child.call_deferred(self.slider)
 	self.remove_child.call_deferred(self.view_button)
 	self.children_added = false
-	# print(&"Children Removed")
 
 
 ## Frees the members of this node
@@ -119,7 +115,6 @@ func _free_members():
 	self.slider.queue_free()
 	self.view_button.queue_free()
 	self.members_created = false
-	# print(&"Members Freed")
 
 
 ## Connects the internal signals for this node

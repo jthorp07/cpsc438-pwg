@@ -73,7 +73,6 @@ func generate_world():
 
 func place_tile(height_map: NoiseSample, heat_map: NoiseSample, moisture_map: NoiseSample, coords: Vector2i):
 	# TODO: Set atlas coords appropriately
-	
 	var atlas_coords = Vector2i(1, 0)
 	self.world.set_cell(coords, 0, atlas_coords)
 	pass

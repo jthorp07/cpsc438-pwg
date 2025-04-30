@@ -29,19 +29,16 @@ func _init():
 	self._create_members()
 	self._connect_internal_signals()
 	self._add_child_nodes()
-	print(&"WorldGeneratorDock Initialized")
 
 
 func clean_up():
 	self._disconnect_internal_signals()
 	self._remove_child_nodes()
 	self._free_members()
-	print(&"WorldGeneratorDock Cleaned Up")
 
 
 func on_node_selected(node: Node):
 	if node is WorldGenerator:
-		print(&"WorldGenerator Detected")
 		self._set_label_text(&"WorldGenerator Editor")
 		self.target = node
 		self._update_preview()
@@ -52,13 +49,11 @@ func on_node_selected(node: Node):
 		self._disconnect_target()
 		self.target = null
 		self.primary_column.hide()
-		print(&"Not WorldGenerator")
 	self.queue_redraw()
 
 
 func _on_target_state_changed():
 	if self.target == null:
-		print(&"Target is null?!")
 		return
 	self._update_preview()
 
@@ -77,7 +72,7 @@ func _disconnect_target():
 
 func _update_preview():
 	if self.target == null:
-		self._set_label_text("WorldGenerator is missing!?")
+		self._set_label_text(&"WorldGenerator is missing!?")
 	self._copy_from_world_generator(self.target)
 	self._update_preview_gradient()
 	self._update_preview_noise()
@@ -85,15 +80,21 @@ func _update_preview():
 
 
 func _update_preview_gradient():
+	if self.target == null:
+		print(&"Update Gradient Fail: null")
+		return
 	match self.preview_mode:
 		PreviewMode.WATER_LEVEL:
 			self.preview.texture.color_ramp = self.water_level.get_gradient()
-			# print("water level gradient chosen with size %d" % self.gradient.offsets.size())
+			self.water_percent_changed.emit(self.target, self.water_level.get_water_level())
 		PreviewMode.HEAT_MAP:
 			self.preview.texture.color_ramp = self.heat_map.get_gradient()
-			# print("heat map gradient chosen with size %d" % self.preview.texture.color_ramp.offsets.size())
+			var weights := self.heat_map.get_weights()
+			self.heat_weights_changed.emit(self.target, weights.x, weights.y, weights.z)
 		PreviewMode.MOISTURE_MAP:
 			self.preview.texture.color_ramp = self.moisture_map.get_gradient()
+			var weights := self.moisture_map.get_weights()
+			self.moisture_weights_changed.emit(self.target, weights.x, weights.y, weights.z)
 
 
 func _update_preview_noise():
@@ -104,13 +105,6 @@ func _update_preview_noise():
 			self.preview.texture.noise = self.target.heat_noise
 		PreviewMode.MOISTURE_MAP:
 			self.preview.texture.noise = self.target.moisture_noise
-
-
-func _update_target():
-	if self.target == null:
-		print(&"Failed to update target: null")
-		return
-
 
 
 func _copy_from_world_generator(node: WorldGenerator):
@@ -149,6 +143,7 @@ func _create_members():
 	self.label.text = &"Select a WorldGenerator Node to use this Dock"
 	self.primary_column = VBoxContainer.new()
 	self.primary_column.name = &"PrimaryColumn"
+	self.primary_column.visible = false
 	self.preview = TextureRect.new()
 	self.preview.name = &"Preview"
 	self.preview_options = HBoxContainer.new()
@@ -223,8 +218,8 @@ func _connect_internal_signals():
 		self.heat_map.request_view.connect(self._set_preview_heat_map)
 	if not self.heat_map.gradient_changed.is_connected(self._update_preview_gradient):
 		self.heat_map.gradient_changed.connect(self._update_preview_gradient)
-	if not self.moisture_map.request_view.is_connected(self._set_preview_heat_map):
-		self.moisture_map.request_view.connect(self._set_preview_heat_map)
+	if not self.moisture_map.request_view.is_connected(self._set_preview_moisture_map):
+		self.moisture_map.request_view.connect(self._set_preview_moisture_map)
 	if not self.moisture_map.gradient_changed.is_connected(self._update_preview_gradient):
 		self.moisture_map.gradient_changed.connect(self._update_preview_gradient)
 	self._connect_target()
@@ -240,8 +235,8 @@ func _disconnect_internal_signals():
 		self.heat_map.request_view.disconnect(self._set_preview_heat_map)
 	if self.heat_map.gradient_changed.is_connected(self._update_preview_gradient):
 		self.heat_map.gradient_changed.disconnect(self._update_preview_gradient)
-	if self.moisture_map.request_view.is_connected(self._set_preview_heat_map):
-		self.moisture_map.request_view.disconnect(self._set_preview_heat_map)
+	if self.moisture_map.request_view.is_connected(self._set_preview_moisture_map):
+		self.moisture_map.request_view.disconnect(self._set_preview_moisture_map)
 	if self.moisture_map.gradient_changed.is_connected(self._update_preview_gradient):
 		self.moisture_map.gradient_changed.disconnect(self._update_preview_gradient)
 	self._disconnect_target()

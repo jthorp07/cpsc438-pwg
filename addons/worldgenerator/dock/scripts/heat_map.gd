@@ -35,6 +35,11 @@ func clean_up():
 	print(&"HeatMap Cleaned Up")
 
 
+func get_weights() -> Vector3i:
+	var weights := Vector3i(self.cold_in.get_value(), self.temperate_in.get_value(), self.hot_in.get_value())
+	return weights
+
+
 func get_gradient() -> Gradient:
 	return self.gradient
 
@@ -78,11 +83,11 @@ func _create_members():
 	self.label.name = &"Label"
 	self.inputs_row = HBoxContainer.new()
 	self.inputs_row.name = &"Inputs"
-	self.cold_in = SliderOption.new(&"Cold", 0.2)
+	self.cold_in = SliderOption.new(&"Cold", 1)
 	self.cold_in.name = &"Cold"
-	self.temperate_in = SliderOption.new(&"Temperate", 0.4)
+	self.temperate_in = SliderOption.new(&"Temperate", 1)
 	self.temperate_in.name = &"Temperate"
-	self.hot_in = SliderOption.new(&"Hot", 0.6)
+	self.hot_in = SliderOption.new(&"Hot", 1)
 	self.hot_in.name = &"Hot"
 	self.view_button = Button.new()
 	self.view_button.text = &"Show View"
