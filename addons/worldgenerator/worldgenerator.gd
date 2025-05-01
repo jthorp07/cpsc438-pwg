@@ -13,10 +13,6 @@ func _enter_tree():
 		EditorInterface.set_plugin_enabled(PLUGIN_CORE, true)
 
 
-func _exit_tree():
-	pass
-
-
 func _disable_plugin():
 	if EditorInterface.is_plugin_enabled(PLUGIN_DOCK):
 		EditorInterface.set_plugin_enabled(PLUGIN_DOCK, false)
