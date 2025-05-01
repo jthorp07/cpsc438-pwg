@@ -6,16 +6,22 @@
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_c6xj6"]
 noise_type = 3
-seed = 5
+seed = 12
+frequency = 0.012
+fractal_type = 2
+fractal_gain = 0.7
+fractal_weighted_strength = 0.25
 domain_warp_enabled = true
 domain_warp_fractal_type = 0
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_6bw2v"]
-noise_type = 4
+noise_type = 2
 seed = 2
-fractal_type = 3
+fractal_type = 0
 fractal_octaves = 9
 fractal_lacunarity = 3.0
+domain_warp_enabled = true
+domain_warp_type = 2
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_kem5a"]
 noise_type = 2
@@ -30,15 +36,12 @@ script = ExtResource("1_m0rpm")
 [node name="WorldGenerator" type="Node2D" parent="."]
 script = ExtResource("2_m0rpm")
 height = 8
-width = 9
+width = 8
 world_wrap = true
-water_percentage = 59
-cold = 3
-mild = 2
-hot = 3
-arid = 3
-temperate = 5
-humid = 3
+cold_poles = true
+water_percentage = 41
+arid = 2
+humid = 2
 height_noise = SubResource("FastNoiseLite_c6xj6")
 moisture_noise = SubResource("FastNoiseLite_6bw2v")
 heat_noise = SubResource("FastNoiseLite_kem5a")
