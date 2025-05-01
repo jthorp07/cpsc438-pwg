@@ -1,0 +1,49 @@
+[gd_scene load_steps=7 format=3 uid="uid://dm5bh8tnrab51"]
+
+[ext_resource type="Script" uid="uid://b27qy30f0picv" path="res://addons/worldgenerator/examples/DemoScene/demo.gd" id="1_m0rpm"]
+[ext_resource type="Script" uid="uid://dt5pa1cihw1xx" path="res://addons/worldgenerator/core/scripts/world_generator.gd" id="2_m0rpm"]
+[ext_resource type="Script" uid="uid://ditmaqvew2628" path="res://addons/worldgenerator/examples/DemoScene/demo_camera.gd" id="3_c6xj6"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_c6xj6"]
+noise_type = 3
+seed = 5
+domain_warp_enabled = true
+domain_warp_fractal_type = 0
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_6bw2v"]
+noise_type = 4
+seed = 2
+fractal_type = 3
+fractal_octaves = 9
+fractal_lacunarity = 3.0
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_kem5a"]
+noise_type = 2
+seed = 2
+domain_warp_enabled = true
+domain_warp_type = 2
+domain_warp_frequency = 0.01
+
+[node name="Demo" type="Node2D"]
+script = ExtResource("1_m0rpm")
+
+[node name="WorldGenerator" type="Node2D" parent="."]
+script = ExtResource("2_m0rpm")
+height = 8
+width = 9
+world_wrap = true
+water_percentage = 59
+cold = 3
+mild = 2
+hot = 3
+arid = 3
+temperate = 5
+humid = 3
+height_noise = SubResource("FastNoiseLite_c6xj6")
+moisture_noise = SubResource("FastNoiseLite_6bw2v")
+heat_noise = SubResource("FastNoiseLite_kem5a")
+metadata/_custom_type_script = "uid://dt5pa1cihw1xx"
+
+[node name="MapCamera" type="Camera2D" parent="."]
+script = ExtResource("3_c6xj6")
+metadata/_custom_type_script = "uid://ditmaqvew2628"
