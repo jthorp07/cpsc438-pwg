@@ -18,6 +18,7 @@ var preview_options: HBoxContainer
 var water_level: WaterLevel
 var heat_map: HeatMap
 var moisture_map: MoistureMap
+var toggle_options: WorldGeneratorDockToggleOptions
 # Internal
 var preview_mode: PreviewMode = PreviewMode.WATER_LEVEL
 var target: WorldGenerator = null
@@ -73,9 +74,9 @@ func _disconnect_target():
 func _update_preview():
 	if self.target == null:
 		self._set_label_text(&"WorldGenerator is missing!?")
-	self._copy_from_world_generator(self.target)
 	self._update_preview_gradient()
 	self._update_preview_noise()
+	self._copy_from_world_generator(self.target)
 	self.queue_redraw()
 
 
@@ -133,6 +134,17 @@ func _set_label_text(new_label: String):
 	self.label.queue_redraw()
 
 
+func _on_world_wrap_changed(new_value: bool):
+	self.world_wrap_changed.emit(self.target, new_value)
+	self.preview.texture.seamless = new_value
+	self.preview.queue_redraw()
+
+
+func _on_cold_poles_changed(new_value: bool):
+	self.cold_poles_changed.emit(self.target, new_value)
+	self.preview.queue_redraw()
+
+
 ## Creates the internal nodes and member instances for this node
 func _create_members():
 	if self.members_created:
@@ -154,6 +166,8 @@ func _create_members():
 	self.heat_map.name = &"HeatMap"
 	self.moisture_map = MoistureMap.new()
 	self.moisture_map.name = &"MoistureMap"
+	self.toggle_options = WorldGeneratorDockToggleOptions.new()
+	self.toggle_options.name = &"ToggleOptions"
 	# Internal Member Initialization
 	self.preview.texture = NoiseTexture2D.new()
 	self.preview.texture.noise = FastNoiseLite.new()
@@ -169,6 +183,7 @@ func _add_child_nodes():
 	self.preview_options.add_child(self.water_level)
 	self.preview_options.add_child(self.heat_map)
 	self.preview_options.add_child(self.moisture_map)
+	self.preview_options.add_child(self.toggle_options)
 	self.primary_column.add_child(self.preview)
 	self.primary_column.add_child(self.preview_options)
 	self.add_child(self.label)
@@ -183,6 +198,7 @@ func _remove_child_nodes():
 	self.preview_options.remove_child.call_deferred(self.water_level)
 	self.preview_options.remove_child.call_deferred(self.heat_map)
 	self.preview_options.remove_child.call_deferred(self.moisture_map)
+	self.preview_options.remove_child.call_deferred(self.toggle_options)
 	self.primary_column.remove_child.call_deferred(self.preview)
 	self.primary_column.remove_child.call_deferred(self.preview_options)
 	self.remove_child.call_deferred(self.label)
@@ -222,6 +238,10 @@ func _connect_internal_signals():
 		self.moisture_map.request_view.connect(self._set_preview_moisture_map)
 	if not self.moisture_map.gradient_changed.is_connected(self._update_preview_gradient):
 		self.moisture_map.gradient_changed.connect(self._update_preview_gradient)
+	if not self.toggle_options.world_wrap_changed.is_connected(self._on_world_wrap_changed):
+		self.toggle_options.world_wrap_changed.connect(self._on_world_wrap_changed)
+	if not self.toggle_options.cold_poles_changed.is_connected(self._on_cold_poles_changed):
+		self.toggle_options.cold_poles_changed.connect(self._on_cold_poles_changed)
 	self._connect_target()
 
 
@@ -239,4 +259,8 @@ func _disconnect_internal_signals():
 		self.moisture_map.request_view.disconnect(self._set_preview_moisture_map)
 	if self.moisture_map.gradient_changed.is_connected(self._update_preview_gradient):
 		self.moisture_map.gradient_changed.disconnect(self._update_preview_gradient)
+	if self.toggle_options.world_wrap_changed.is_connected(self._on_world_wrap_changed):
+		self.toggle_options.world_wrap_changed.disconnect(self._on_world_wrap_changed)
+	if self.toggle_options.cold_poles_changed.is_connected(self._on_cold_poles_changed):
+		self.toggle_options.cold_poles_changed.disconnect(self._on_cold_poles_changed)
 	self._disconnect_target()

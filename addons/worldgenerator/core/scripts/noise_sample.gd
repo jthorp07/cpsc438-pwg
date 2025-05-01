@@ -33,22 +33,40 @@ func sample_with_wrap(noise: FastNoiseLite):
 		for x in range(self._width):
 			# Sinusoidal functions with period=width and amplitude=width/2
 			# Makes the looper still move 1 on each axis for each sample value & wrap on one axis
-			var nx = fwidth / 2.0 * cos((TAU * float(x)) / fwidth)
-			var ny = fwidth / 2.0 * sin((TAU * float(y)) / fwidth)
+			var nx = fwidth / 2.0 * cos(TAU * float(x) / fwidth)
+			var ny = fwidth / 2.0 * sin(TAU * float(x) / fwidth)
 			var nz = y
 			self._sample[y][x] = noise.get_noise_3d(nx, ny, nz)
 
 
+## Retrieve this sample's dimensions as a [class Vector2i]
 func dimensions() -> Vector2i:
 	return Vector2i(self._width, self._height)
 
 
+## Retrieve the value at [param coords]
+func get_value(coords: Vector2i):
+	return self._sample[coords.y][coords.x]
+
+
+## Iterates over all sample values performing an augment specified by [param augment].[br]
+## Augments are calculated based on the X and Y coordinates and current value at[br]
+## those coordinates.[br][br]
+## Expects that [param augment] is of signature:[br][br]
+## [code]func augment(x: int, y: int, old_value: float) -> float[/code][br]
+func augment_sample(augment: Callable):
+	for y in range(self._height):
+		for x in range(self._width):
+			self._sample[y][x] = augment.call(x, y, self._sample[y][x])
+
+
+## Creates a 1 dimensional array with every value in this sample in ascending order
 func _to_sorted_array() -> PackedFloat32Array:
 	var arr: PackedFloat32Array = []
 	arr.resize(self._width * self._height)
 	for y in range(self._height):
 		for x in range(self._width):
-			arr[(x * y) + y] = self._sample[y][x]
+			arr[(self._width * y) + x] = self._sample[y][x]
 	arr.sort()
 	return arr
 
@@ -63,5 +81,6 @@ func get_percentiles(percentiles: PackedFloat32Array) -> PackedFloat32Array:
 	var max_index: int = (self._width * self._height) - 1
 	results.resize(count)
 	for i in range(count):
-		results[i] = sample[roundi(float(max_index) * clampf(percentiles[i], 0.00, 1.00))]
+		var sample_index := roundi(float(max_index) * clampf(percentiles[i], 0.00, 1.00))
+		results[i] = sample[sample_index]
 	return results

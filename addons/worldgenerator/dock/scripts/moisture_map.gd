@@ -81,11 +81,11 @@ func _create_members():
 	self.label.name = &"Label"
 	self.inputs_row = HBoxContainer.new()
 	self.inputs_row.name = &"Inputs"
-	self.arid_in = SliderOption.new(&"Arid", 0.2)
+	self.arid_in = SliderOption.new(&"Arid", 1)
 	self.arid_in.name = &"Arid"
-	self.temperate_in = SliderOption.new(&"Temperate", 0.4)
+	self.temperate_in = SliderOption.new(&"Temperate", 1)
 	self.temperate_in.name = &"Temperate"
-	self.humid_in = SliderOption.new(&"Humid", 0.6)
+	self.humid_in = SliderOption.new(&"Humid", 1)
 	self.humid_in.name = &"Humid"
 	self.view_button = Button.new()
 	self.view_button.text = &"Show View"

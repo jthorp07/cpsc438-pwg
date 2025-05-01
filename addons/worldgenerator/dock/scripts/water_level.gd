@@ -58,7 +58,7 @@ func _make_gradient(land_start: float):
 
 ## Update the water level label with a new value
 func _update_label_text(val: int):
-	self.label.text = "Water Percentage: %3d%%" % val
+	self.label.text = "Water Percentage:\n%3d%%" % val
 	self.queue_redraw()
 
 

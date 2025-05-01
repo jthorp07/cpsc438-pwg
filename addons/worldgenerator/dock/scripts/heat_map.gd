@@ -25,14 +25,12 @@ func _init():
 	self._create_members()
 	self._add_child_nodes()
 	self._connect_internal_signals()
-	print(&"HeatMap Initialized")
 
 
 func clean_up():
 	self._disconnect_internal_signals()
 	self._remove_child_nodes()
 	self._free_members()
-	print(&"HeatMap Cleaned Up")
 
 
 func get_weights() -> Vector3i:

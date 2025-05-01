@@ -5,6 +5,8 @@ signal value_changed(new_value: bool)
 
 var label: Label
 var checkbox: CheckBox
+var members_created: bool = false
+var children_added: bool = false
 
 func _init(label_name: String):
 	self._create_members(label_name)
@@ -70,11 +72,11 @@ func _free_members():
 
 ## Connects the internal signals for this node
 func _connect_internal_signals():
-	if not self.checkbox.toggled.is_connected(self.value_updated.emit):
-		self.checkbox.toggled.connect(self.value_updated.emit)
+	if not self.checkbox.toggled.is_connected(self.value_changed.emit):
+		self.checkbox.toggled.connect(self.value_changed.emit)
 
 
 ## Disconnects the internal signals for this node
 func _disconnect_internal_signals():
-	if self.checkbox.toggled.is_connected(self.value_updated.emit):
-		self.checkbox.toggled.disconnect(self.value_updated.emit)
+	if self.checkbox.toggled.is_connected(self.value_changed.emit):
+		self.checkbox.toggled.disconnect(self.value_changed.emit)
