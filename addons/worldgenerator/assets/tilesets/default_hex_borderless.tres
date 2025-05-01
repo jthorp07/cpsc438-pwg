@@ -1,0 +1,22 @@
+[gd_resource type="TileSet" load_steps=3 format=3 uid="uid://6wikrnpspvb4"]
+
+[ext_resource type="Texture2D" uid="uid://dmo32iyxeeowu" path="res://addons/worldgenerator/assets/16x16_10Hex_Borderless.png" id="1_4urp1"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_me0vg"]
+texture = ExtResource("1_4urp1")
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+2:1/0 = 0
+3:1/0 = 0
+0:2/0 = 0
+1:2/0 = 0
+2:2/0 = 0
+3:2/0 = 0
+
+[resource]
+tile_shape = 3
+sources/0 = SubResource("TileSetAtlasSource_me0vg")
